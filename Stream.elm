@@ -55,6 +55,14 @@ zipWith : (a -> b -> c) -> Stream a -> Stream b -> Stream c
 zipWith f xs ys = map (uncurry f) <| zip xs ys
 
 -- More utils
+head : Stream a -> a
+head xs = case xs of
+  More x _ -> x
+
+tail : Stream a -> Stream a
+tail xs = case xs of
+  More _ txs -> runLazy txs
+
 take : Int -> Stream a -> Stream a
 take n xs = case xs of
   End -> End
