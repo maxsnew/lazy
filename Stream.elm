@@ -47,12 +47,38 @@ fromList xs' = case xs' of
 zip : Stream a -> Stream b -> Stream (a, b)
 zip xs ys = case xs of
   End -> End
-  More x xs -> case ys of
+  More x txs -> case ys of
     End -> End
-    More y ys -> (x, y) :~: ((zip `lazyMap` xs) `lazyAp` ys)
+    More y tys -> (x, y) :~: ((zip `lazyMap` txs) `lazyAp` tys)
 
 zipWith : (a -> b -> c) -> Stream a -> Stream b -> Stream c
 zipWith f xs ys = map (uncurry f) <| zip xs ys
+
+-- More utils
+take : Int -> Stream a -> Stream a
+take n xs = case xs of
+  End -> End
+  More x txs -> if n == 0
+                then End
+                else x :~: lazyMap (take (n - 1)) txs
+
+takeWhile : (a -> Bool) -> Stream a -> Stream a
+takeWhile p xs = case xs of
+  End -> End
+  More x txs -> let rest = takeWhile p `lazyMap` txs in
+                if p x
+                then x :~: rest
+                else runLazy rest
+
+drop : Int -> Stream a -> Stream a
+drop n xs = case xs of
+  End -> End
+  More x txs -> if n == 0
+                then xs
+                else runLazy <| drop (n - 1) `lazyMap` txs
+
+dropWhile : (a -> Bool) -> Stream a -> Stream a
+dropWhile p = takeWhile (not . p)
 
 -- Things you can't do with lists
 repeat : a -> Stream a
