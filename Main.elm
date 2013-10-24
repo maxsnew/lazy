@@ -1,14 +1,14 @@
 module Main where
 
-import Stream as Stream
-import Stream (Stream, (:~:), (:~:~), (+~+))
-import open Lazy
+import LList as LList
+import LList (LList, (:~:), (:~:~), (+~+))
+import Lazy as Lazy
 
-nats : Stream Int
-nats = 0 :~: (\() -> Stream.map ((+) 1) nats)
+nats : LList Int
+nats = 0 :~: (\() -> LList.map ((+) 1) nats)
 
-fibs : Stream Int
-fibs = 0 :~: lazyPure (1 :~: (\() -> Stream.zipWith (+) fibs (Stream.tail fibs)))
+fibs : LList Int
+fibs = 0 :~: Lazy.pure (1 :~: (\() -> LList.zipWith (+) fibs (LList.tail fibs)))
 
 -- Prohibitively slow for large number of values taken.
-main = asText . Stream.toList . Stream.take 15 <| fibs
+main = asText . LList.take 25 <| fibs
