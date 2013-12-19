@@ -1,5 +1,5 @@
 module Lazy.Stream ( head, tail
-                   , cons, cons', iterate, repeat, cycle
+                   , cons, cons', iterate, unfold, repeat, cycle
                    , map, apply, zip, zipWith, scanl
                    , take, drop, splitAt
                    , sampleOn
@@ -55,6 +55,15 @@ cons' = S . lazy
 iterate : (a -> a) -> a -> Stream a
 iterate f x = cons' <| \() ->
   (x, iterate f (f x))
+
+{-| Build a stream from a seed value.
+-}
+unfold : (b -> (a, b)) -> b -> Stream a
+unfold f s = let loop s = 
+                   cons' <| \() ->
+                   let (hd, s') = f s
+                   in (hd, loop s')
+             in loop s
 
 {-| Create an infinite Stream of xs. -}
 repeat : a -> Stream a
