@@ -1,9 +1,9 @@
-{ "version": "0.1"
+{ "version": "0.2"
 , "summary": "Lazy Data Structures"
 , "description":
       "Implementations of various lazy Data Structures"
 , "license": "BSD3"
-, "repository": "http://github.com/maxsnew/Elm-Lazy.git"
+, "repository": "http://github.com/maxsnew/Lazy.git"
 , "exposed-modules":
       [ "Lazy"
       , "Lazy.Stream"
