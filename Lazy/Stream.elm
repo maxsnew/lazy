@@ -3,13 +3,13 @@ module Lazy.Stream ( head, tail
                    , map, apply, zip, zipWith, scanl
                    , take, drop, splitAt
                    , sampleOn
-                   , filter, takeWhile, dropWhile, splitWhen
+                   , filter, takeWhile, dropWhile, splitWith
                    ) where
 
 {-| Library for Infinite Streams 
 
 # Create
-@docs cons, cons', iterate, repeat, cycle
+@docs cons, cons', iterate, unfold, repeat, cycle
 
 # Observe
 @docs head, tail, sampleOn, take, drop, splitAt
@@ -18,7 +18,7 @@ module Lazy.Stream ( head, tail
 @docs map, apply, zip, zipWith, scanl
 
 # Converge
-@docs filter, takeWhile, dropWhile, splitWhen
+@docs filter, takeWhile, dropWhile, splitWith
 
 -}
 
@@ -50,14 +50,13 @@ cons' = S . lazy
 
 {-| Create a stream of repeated applications of f to x:
 
-    iterate f x = S.cons x (S.cons (f x) (S.cons (f (f x)) ...))
+    iterate f x = S.cons x (\() -> S.cons (f x) (\() -> S.cons (f (f x)) ...))
 -}
 iterate : (a -> a) -> a -> Stream a
 iterate f x = cons' <| \() ->
   (x, iterate f (f x))
 
-{-| Build a stream from a seed value.
--}
+{-| Build a stream from a seed value. -}
 unfold : (b -> (a, b)) -> b -> Stream a
 unfold f s = let loop s = 
                    cons' <| \() ->
@@ -65,12 +64,12 @@ unfold f s = let loop s =
                    in (hd, loop s')
              in loop s
 
-{-| Create an infinite Stream of xs. -}
+{-| Create an infinite Stream where every head is the same. -}
 repeat : a -> Stream a
 repeat x = let go = cons x <| \() -> go
            in go
 
-{-| Cycle through the elements of the nonempty list (x :: xs) -}           
+{-| Cycle through the elements of a nonempty list. -}           
 cycle : a -> [a] -> Stream a
 cycle x xs = let cycle' ys = case ys of
                    [] -> go
@@ -153,24 +152,24 @@ filter p xs = cons' <| (\() ->
     which the predicate does not hold.
 -}
 takeWhile : (a -> Bool) -> Stream a -> [a]
-takeWhile p xs = fst <| splitWhen p xs
+takeWhile p xs = fst <| splitWith p xs
 
 {-| Take the first tail of a Stream for which a predicate does not
     hold on its head. This function only terminates if there is an element
     of the stream for which the predicate does not hold.
 -}
 dropWhile : (a -> Bool) -> Stream a -> Stream a
-dropWhile p xs = snd <| splitWhen p xs
+dropWhile p xs = snd <| splitWith p xs
 
 {-| Split a Stream into its longest prefix for which a predicate holds and
     the rest of the Stream. This function only terminates if there is an element
     of the stream for which the predicate does not hold.
 
-    splitWhen p xs == (takeWhile p xs, dropWhile p xs)
+    splitWith p xs == (takeWhile p xs, dropWhile p xs)
 -}
-splitWhen : (a -> Bool) -> Stream a -> ([a], Stream a)
-splitWhen p xs = let (hd, tl) = unS xs in
+splitWith : (a -> Bool) -> Stream a -> ([a], Stream a)
+splitWith p xs = let (hd, tl) = unS xs in
   case p hd of
-    True  -> let (taken, dropped) = splitWhen p tl
+    True  -> let (taken, dropped) = splitWith p tl
              in (hd :: taken, dropped)
     False -> ([], xs)

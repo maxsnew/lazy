@@ -15,7 +15,7 @@ module Lazy ( force, lazy, map, apply, bind
 
 data Lazy a = L { force : () -> a }
 
-{-| Memoize a thunk so it is evaluated at most once. -}
+{-| Delay execution of a value -}
 lazy : (() -> a) -> Lazy a
 lazy t = L { force = t }
 
