@@ -1,29 +1,39 @@
-module Lazy where
+module Lazy ( force, lazy, map, apply, bind
+            ) where
 
-type Lazy a = () -> a
+{-| Library for Lazy evaluation.
 
--- Lazy values can be evaluated
+# Delay
+@docs lazy
+
+# Evaluate
+@docs force
+
+# Transform
+@docs map, apply, bind
+-}
+
+data Lazy a = L { force : () -> a }
+
+{-| Memoize a thunk so it is evaluated at most once. -}
+lazy : (() -> a) -> Lazy a
+lazy t = L { force = t }
+
+{-| Execute a lazy value. -}
 force : Lazy a -> a
-force tx = tx ()
+force (L r) = r.force ()
 
--- Lazy is a functor
+{-| Lazily apply a pure function to a lazy value. -}
 map : (a -> b) -> Lazy a -> Lazy b
-map f = (.) f
+map f t = lazy <| \() ->
+  f . force <| t
 
--- Lazy is an applicative functor
-pure : a -> Lazy a
-pure x () = x
-ap   : Lazy (a -> b) -> Lazy a -> Lazy b
-ap tf tx = force tf . tx
+{-| Lazily apply a Lazy function to a Lazy value. -}
+apply : Lazy (a -> b) -> Lazy a -> Lazy b
+apply f x = lazy <| \() ->
+  (force f) (force x)
 
--- Lazy is a monad
-join : Lazy (Lazy a) -> Lazy a
-join t = force t
+{-| Lazily chain together Lazy computations. -}
 bind : Lazy a -> (a -> Lazy b) -> Lazy b
-bind tx mtf = (flip mtf) `ap` tx
-
-
-
-
-
-
+bind x k = lazy <| \() ->
+  force . k . force <| x
