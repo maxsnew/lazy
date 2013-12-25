@@ -18,7 +18,7 @@ module Lazy.Stream ( head, tail
 @docs map, apply, zip, zipWith, scanl
 
 # Converge
-@docs filter, takeWhile, dropWhile, splitWith
+@docs foldr, filter, takeWhile, dropWhile, splitWith
 
 -}
 
@@ -173,3 +173,14 @@ splitWith p xs = let (hd, tl) = unS xs in
     True  -> let (taken, dropped) = splitWith p tl
              in (hd :: taken, dropped)
     False -> ([], xs)
+
+{-| Lazily fold over a Stream. Forcing the value of this function only
+    terminates if the provided folding function eventually ignores its
+    second argument.
+
+-}
+foldr : (a -> Lazy b -> Lazy b) -> Stream a -> Lazy b
+foldr f xs = let loop xs = lazy <| \() ->
+                   let (hd, tl) = unS xs in
+                   force <| f hd (loop tl)
+             in loop xs
