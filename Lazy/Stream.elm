@@ -1,4 +1,4 @@
-module Lazy.Stream ( head, tail
+module Lazy.Stream ( head, tail, force
                    , cons, cons', iterate, unfold, repeat, cycle
                    , map, apply, zip, zipWith, scanl
                    , take, drop, splitAt
@@ -12,7 +12,7 @@ module Lazy.Stream ( head, tail
 @docs cons, cons', iterate, unfold, repeat, cycle
 
 # Observe
-@docs head, tail, sampleOn, take, drop, splitAt
+@docs head, tail, force, sampleOn, take, drop, splitAt
 
 # Transform
 @docs map, apply, zip, zipWith, scanl
@@ -37,6 +37,10 @@ head = fst . unS
 {-| Compute the next piece of a Stream -}
 tail : Stream a -> Stream a
 tail = snd . unS
+
+{-| Get both the head and tail at once -}
+force : Stream a -> (a, Stream a)
+force = unS
 
 {-| Create a Stream -}
 cons : a -> (() -> Stream a) -> Stream a
