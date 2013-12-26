@@ -24,12 +24,9 @@ module Lazy.Stream ( head, tail, force
 
 import open Lazy
 import Lazy as Lazy
+import Lazy.Stream.Definition (Stream)
+import Lazy.Stream.Definition as Def
 import Signal ((<~), foldp, Signal)
-
-data Stream a = S (Lazy (a, Stream a))
-
-unS : Stream a -> (a, Stream a)
-unS (S t) = Lazy.force t
 
 {-| Get the first element of a stream, called the `head`.
 
@@ -38,7 +35,7 @@ head ones == 1
 ```
 -}
 head : Stream a -> a
-head = fst . unS
+head = Def.head
 
 {-| Drop the `head` of a stream, leaving you with the `tail`.
 
@@ -48,11 +45,11 @@ stillAllOnes = tail
 ```
 -}
 tail : Stream a -> Stream a
-tail = snd . unS
+tail = Def.tail
 
 {-| Get both the head and tail at once -}
 force : Stream a -> (a, Stream a)
-force = unS
+force = Def.force
 
 {-| Create a stream:
 
@@ -62,9 +59,7 @@ ones = cons 1 (\() -> ones)
 ```
  -}
 cons : a -> (() -> Stream a) -> Stream a
-cons x txs = let mtxs = lazy txs in
-  S . lazy <| \() ->
-  (x, Lazy.force mtxs)
+cons = Def.cons
 
 {-| Create a stream that is slightly more lazy. Notice that the
 head of the stream is defined within the thunk, so its evaluation
@@ -76,7 +71,7 @@ ones = cons' (\_ -> (1,ones))
 ```
 -}
 cons' : (() -> (a, Stream a)) -> Stream a
-cons' = S . lazy
+cons' = Def.cons'
 
 {-| Iteratively apply a function to a value:
 
@@ -246,10 +241,10 @@ filter isOdd twos
 -}
 filter : (a -> Bool) -> Stream a -> Stream a
 filter p xs = cons' <| (\() ->
-  let (hd, tl) = unS xs in
+  let (hd, tl) = force xs in
   case p hd of
     True ->  (hd, filter p tl)
-    False -> unS <| filter p tl)
+    False -> force <| filter p tl)
 
 {-| Take values from the stream for as long as the predicate holds.
 
@@ -299,7 +294,7 @@ splitWith (\n -> n < 10) powersOf2 == ([2,4,8], ...)
     This will infinite loop if all elements satisfy the predicate!
 -}
 splitWith : (a -> Bool) -> Stream a -> ([a], Stream a)
-splitWith p xs = let (hd, tl) = unS xs in
+splitWith p xs = let (hd, tl) = force xs in
   case p hd of
     True  -> let (taken, dropped) = splitWith p tl
              in (hd :: taken, dropped)
