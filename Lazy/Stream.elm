@@ -23,12 +23,13 @@ module Lazy.Stream ( head, tail, force
 -}
 
 import open Lazy
+import Lazy as Lazy
 import Signal ((<~), foldp, Signal)
 
 data Stream a = S (Lazy (a, Stream a))
 
 unS : Stream a -> (a, Stream a)
-unS (S t) = force t
+unS (S t) = Lazy.force t
 
 {-| Get the first element of a stream, called the `head`.
 
@@ -63,7 +64,7 @@ ones = cons 1 (\() -> ones)
 cons : a -> (() -> Stream a) -> Stream a
 cons x txs = let mtxs = lazy txs in
   S . lazy <| \() ->
-  (x, force mtxs)
+  (x, Lazy.force mtxs)
 
 {-| Create a stream that is slightly more lazy. Notice that the
 head of the stream is defined within the thunk, so its evaluation
@@ -312,6 +313,6 @@ splitWith p xs = let (hd, tl) = unS xs in
 -}
 foldr : (a -> Lazy b -> Lazy b) -> Stream a -> Lazy b
 foldr f xs = let loop xs = lazy <| \() ->
-                   let (hd, tl) = unS xs in
-                   force <| f hd (loop tl)
+                   let (hd, tl) = force xs in
+                   Lazy.force <| f hd (loop tl)
              in loop xs
