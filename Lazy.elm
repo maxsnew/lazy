@@ -13,11 +13,13 @@ module Lazy ( force, lazy, map, apply, bind
 @docs map, apply, bind
 -}
 
+import Native.Lazy
+
 data Lazy a = L { force : () -> a }
 
 {-| Delay execution of a value -}
 lazy : (() -> a) -> Lazy a
-lazy t = L { force = t }
+lazy t = L { force = (Native.Lazy.lazy t) }
 
 {-| Execute a lazy value. -}
 force : Lazy a -> a

@@ -22,11 +22,15 @@ module Lazy.Stream ( head, tail, force
 
 -}
 
-import open Lazy
+import Lazy (..)
 import Lazy as Lazy
-import Lazy.Stream.Definition (Stream)
-import Lazy.Stream.Definition as Def
 import Signal ((<~), foldp, Signal)
+
+data Stream a = S (Lazy (a, Stream a))
+
+
+---------
+-----------
 
 {-| Get the first element of a stream, called the `head`.
 
@@ -35,7 +39,7 @@ head ones == 1
 ```
 -}
 head : Stream a -> a
-head = Def.head
+head = fst . force
 
 {-| Drop the `head` of a stream, leaving you with the `tail`.
 
@@ -45,11 +49,11 @@ stillAllOnes = tail
 ```
 -}
 tail : Stream a -> Stream a
-tail = Def.tail
+tail = snd . force
 
 {-| Get both the head and tail at once -}
 force : Stream a -> (a, Stream a)
-force = Def.force
+force (S t) = Lazy.force t
 
 {-| Create a stream:
 
@@ -59,7 +63,9 @@ ones = cons 1 (\() -> ones)
 ```
  -}
 cons : a -> (() -> Stream a) -> Stream a
-cons = Def.cons
+cons x txs = let mtxs = lazy txs in
+  S . lazy <| \() ->
+  (x, Lazy.force mtxs)
 
 {-| Create a stream that is slightly more lazy. Notice that the
 head of the stream is defined within the thunk, so its evaluation
@@ -71,7 +77,7 @@ ones = cons' (\_ -> (1,ones))
 ```
 -}
 cons' : (() -> (a, Stream a)) -> Stream a
-cons' = Def.cons'
+cons' = S . lazy
 
 {-| Iteratively apply a function to a value:
 
@@ -291,7 +297,7 @@ splitWith pred xs == (takeWhile pred xs, dropWhile pred xs)
 
 splitWith (\n -> n < 10) powersOf2 == ([2,4,8], ...)
 ```
-    This will infinite loop if all elements satisfy the predicate!
+This will infinite loop if all elements satisfy the predicate!
 -}
 splitWith : (a -> Bool) -> Stream a -> ([a], Stream a)
 splitWith p xs = let (hd, tl) = force xs in
@@ -311,3 +317,4 @@ foldr f xs = let loop xs = lazy <| \() ->
                    let (hd, tl) = force xs in
                    Lazy.force <| f hd (loop tl)
              in loop xs
+

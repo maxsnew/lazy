@@ -8,6 +8,9 @@
       [ "Lazy"
       , "Lazy.Stream"
       ]
+, "native-modules":
+      [ "Native.Lazy"
+      ]
 , "elm-version": "0.10.0.2"
 , "dependencies": {}
 }

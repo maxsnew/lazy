@@ -35,8 +35,6 @@ fib_help m n k = fib_help n (m + n) (k - 1)
 fibs' : Stream Int
 fibs' = S.unfold (\(m, n) -> (m, (n, m + n))) (0, 1)
 
--- Fast!
-main = asText . S.take 100 <| fibs'
-
--- Ungodly slow!
--- main = asText . S.take 25 <| fibs
+-- Both fast!
+-- main = asText . S.take 100 <| fibs'
+main = asText . S.take 25 <| fibs
