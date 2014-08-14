@@ -3,7 +3,7 @@ module Lazy.List.Definition ( force
                             )
        where
 
-import open Lazy
+import Lazy (..)
 import Lazy as Lazy
 
 data List a = L (Lazy (Bod a))
