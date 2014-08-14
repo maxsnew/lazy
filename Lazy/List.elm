@@ -9,7 +9,7 @@ import Lazy.List.Definition as Def
 import Lazy.List.Definition (List, Nil, Cons, Bod)
 
 import Lazy
-import open Lazy
+import Lazy (..)
 
 force : List a -> Bod a
 force = Def.force
