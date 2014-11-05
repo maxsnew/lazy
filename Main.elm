@@ -37,4 +37,4 @@ fibs' = S.unfold (\(m, n) -> (m, (n, m + n))) (0, 1)
 
 -- Both fast!
 -- main = asText . S.take 100 <| fibs'
-main = asText . S.take 25 <| fibs
+main = asText << S.take 25 <| fibs

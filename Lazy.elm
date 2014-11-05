@@ -1,4 +1,4 @@
-module Lazy ( force, lazy, map, apply, bind
+module Lazy ( force, Lazy, lazy, map, apply, bind
             ) where
 
 {-| Library for Lazy evaluation.
@@ -30,7 +30,7 @@ will be delayed until you force the resulting value.
 -}
 map : (a -> b) -> Lazy a -> Lazy b
 map f t = lazy <| \() ->
-  f . force <| t
+  f << force <| t
 
 {-| Lazily apply a lazy function to a lazy value. This can
 be used to lazily apply a function to many lazy arguments:
@@ -46,4 +46,4 @@ apply f x = lazy <| \() ->
 {-| Lazily chain together Lazy computations. -}
 bind : Lazy a -> (a -> Lazy b) -> Lazy b
 bind x k = lazy <| \() ->
-  force . k . force <| x
+  force << k << force <| x
