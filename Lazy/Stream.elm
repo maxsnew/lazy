@@ -1,4 +1,5 @@
-module Lazy.Stream ( head, tail, force
+module Lazy.Stream ( Stream
+                   , head, tail, force
                    , cons, cons', iterate, unfold, repeat, cycle
                    , map, apply, zip, zipWith, scanl
                    , take, drop, splitAt
@@ -39,7 +40,7 @@ head ones == 1
 ```
 -}
 head : Stream a -> a
-head = fst . force
+head = fst << force
 
 {-| Drop the `head` of a stream, leaving you with the `tail`.
 
@@ -49,7 +50,7 @@ stillAllOnes = tail
 ```
 -}
 tail : Stream a -> Stream a
-tail = snd . force
+tail = snd << force
 
 {-| Get both the head and tail at once -}
 force : Stream a -> (a, Stream a)
@@ -64,7 +65,7 @@ ones = cons 1 (\() -> ones)
  -}
 cons : a -> (() -> Stream a) -> Stream a
 cons x txs = let mtxs = lazy txs in
-  S . lazy <| \() ->
+  S << lazy <| \() ->
   (x, Lazy.force mtxs)
 
 {-| Create a stream that is slightly more lazy. Notice that the
@@ -77,7 +78,7 @@ ones = cons' (\_ -> (1,ones))
 ```
 -}
 cons' : (() -> (a, Stream a)) -> Stream a
-cons' = S . lazy
+cons' = S << lazy
 
 {-| Iteratively apply a function to a value:
 

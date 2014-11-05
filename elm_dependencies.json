@@ -11,6 +11,6 @@
 , "native-modules":
       [ "Native.Lazy"
       ]
-, "elm-version": "0.10.0.2"
+, "elm-version": "0.13"
 , "dependencies": {}
 }

@@ -1,4 +1,5 @@
-module Lazy.List.Definition ( force
+module Lazy.List.Definition ( List
+                            , force
                             , nil, cons, cons'
                             )
        where
@@ -25,4 +26,4 @@ cons' : (() -> (a, List a)) -> List a
 cons' t = L (Lazy.map (uncurry Cons) (lazy t))
 
 list : (() -> Bod a) -> List a
-list = L . lazy
+list = L << lazy
