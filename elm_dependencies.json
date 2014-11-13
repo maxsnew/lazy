@@ -1,7 +1,7 @@
 { "version": "0.3"
-, "summary": "Lazy Data Structures"
+, "summary": "Memoized Lazy Data Structures"
 , "description":
-      "Implementations of various lazy Data Structures"
+      "Implementations of various lazy Data Structures. Uses a Native extension to memoize lazy computations."
 , "license": "BSD3"
 , "repository": "http://github.com/maxsnew/Lazy.git"
 , "exposed-modules":
