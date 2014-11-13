@@ -1,4 +1,4 @@
-module Lazy ( force, Lazy, lazy, map, apply, bind
+module Lazy ( force, Lazy, lazy, map, apply, andThen
             ) where
 
 {-| Library for Lazy evaluation.
@@ -10,18 +10,20 @@ module Lazy ( force, Lazy, lazy, map, apply, bind
 @docs force
 
 # Transform
-@docs map, apply, bind
+@docs map, apply, andThen
 -}
 
 import Native.Lazy
 
 data Lazy a = L { force : () -> a }
 
-{-| Delay execution of a value -}
+{-| Delay execution of a value until it is used -}
 lazy : (() -> a) -> Lazy a
 lazy t = L { force = (Native.Lazy.lazy t) }
 
-{-| Execute a lazy value. -}
+{-| Execute a lazy value.
+
+Only the first call will actually perform the computation, later calls will be memoized -}
 force : Lazy a -> a
 force (L r) = r.force ()
 
@@ -44,6 +46,6 @@ apply f x = lazy <| \() ->
   (force f) (force x)
 
 {-| Lazily chain together Lazy computations. -}
-bind : Lazy a -> (a -> Lazy b) -> Lazy b
-bind x k = lazy <| \() ->
+andThen : Lazy a -> (a -> Lazy b) -> Lazy b
+andThen x k = lazy <| \() ->
   force << k << force <| x
