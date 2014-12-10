@@ -1,59 +1,54 @@
-module Lazy.List ( force, head, tail
-                 , nil, cons, cons', list
-                 , iterate, unfold, repeat, cycle
-                 , map, foldr, append
-                 )
-       where
+module Lazy.List where
 
 import Lazy.List.Definition as Def
-import Lazy.List.Definition (List, Nil, Cons, Bod)
+import Lazy.List.Definition (Bod(..))
 
 import Lazy
 import Lazy (..)
 
-force : List a -> Bod a
+force : Def.List a -> Bod a
 force = Def.force
 
-nil : List a
+nil : Def.List a
 nil = Def.nil
 
-cons : a -> (() -> List a) -> List a
+cons : a -> (() -> Def.List a) -> Def.List a
 cons = Def.cons
 
-cons' : (() -> (a, List a)) -> List a
+cons' : (() -> (a, Def.List a)) -> Def.List a
 cons' = Def.cons'
 
-list : (() -> Bod a) -> List a
+list : (() -> Bod a) -> Def.List a
 list = Def.list
 
-head : List a -> Maybe a
+head : Def.List a -> Maybe a
 head xs = case force xs of
   Nil      -> Nothing
   Cons x _ -> Just x
 
-tail : List a -> Maybe (List a)
+tail : Def.List a -> Maybe (Def.List a)
 tail xs = case force xs of
   Nil       -> Nothing
   Cons _ xs -> Just xs
 
-iterate : (a -> Maybe a) -> a -> List a
+iterate : (a -> Maybe a) -> a -> Def.List a
 iterate f x = let loop x = list <| \() ->
                     case f x of
                       Nothing -> Nil
                       Just y  -> Cons x <| loop y
               in loop x
 
-unfold : (b -> Maybe (a, b)) -> b -> List a
+unfold : (b -> Maybe (a, b)) -> b -> Def.List a
 unfold f s = let loop s = list <| \() ->
                    case f s of
                      Nothing     -> Nil
                      Just (x, y) -> Cons x (loop y)
              in loop s
 
-repeat : a -> List a
+repeat : a -> Def.List a
 repeat = iterate Just
 
-cycle : a -> [a] -> List a
+cycle : a -> List a -> Def.List a
 cycle x xs = let cycle' xs = case xs of
                    [] -> begin
                    (x :: xs) -> cons x <| \() ->
@@ -62,7 +57,7 @@ cycle x xs = let cycle' xs = case xs of
                    cycle' xs
              in begin
 
-map : (a -> b) -> List a -> List b
+map : (a -> b) -> Def.List a -> Def.List b
 map f xs = let loop xs = list <| \() ->
                  case force xs of
                    Nil -> Nil
@@ -70,16 +65,16 @@ map f xs = let loop xs = list <| \() ->
                      Cons (f x) (loop xs)
            in loop xs
 
-foldr : (a -> Lazy b -> Lazy b) -> b -> List a -> Lazy b
+foldr : (a -> Lazy b -> Lazy b) -> b -> Def.List a -> Lazy b
 foldr f def xs = let loop xs = lazy <| \() ->
                        case force xs of
                          Nil -> def
                          Cons x xs ->
-                           Lazy.force . f x . loop <| xs
+                           Lazy.force << f x << loop <| xs
                  in loop xs
 
-append : List a -> List a -> List a
-append xs ys = let lcons : a -> Lazy (List a) -> Lazy (List a)
+append : Def.List a -> Def.List a -> Def.List a
+append xs ys = let lcons : a -> Lazy (Def.List a) -> Lazy (Def.List a)
                    lcons x tys = lazy <| \() ->
                      cons x (\() -> Lazy.force tys)
                in Lazy.force <| foldr lcons ys xs

@@ -1,5 +1,4 @@
-module Lazy ( force, Lazy, lazy, map, apply, andThen
-            ) where
+module Lazy where
 
 {-| Library for Lazy evaluation.
 
@@ -13,9 +12,7 @@ module Lazy ( force, Lazy, lazy, map, apply, andThen
 @docs map, apply, andThen
 -}
 
-import Native.Lazy
-
-data Lazy a = L { force : () -> a }
+type Lazy a = L { force : () -> a }
 
 {-| Delay execution of a value until it is used -}
 lazy : (() -> a) -> Lazy a
