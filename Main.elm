@@ -3,6 +3,7 @@ module Main where
 import Lazy (lazy)
 import Lazy.Stream (Stream)
 import Lazy.Stream as S
+import Text (..)
 
 nats : Stream Int
 nats = S.iterate (\n -> n + 1) 0
@@ -21,7 +22,7 @@ fibs : Stream Int
 fibs =
   S.cons 0 <| \() ->
   S.cons 1 <| \() ->
-  S.zipWith (+) fibs (S.tail fibs)
+  S.map2 (+) fibs (S.tail fibs)
 
 -- fast!
 main = asText << S.take 1000 <| fibs
