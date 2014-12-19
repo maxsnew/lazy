@@ -1,13 +1,13 @@
 module Lazy.Stream ( Stream
                    , head, tail, force
                    , cons, cons', iterate, unfold, repeat, cycle
-                   , map, apply, zip, zipWith, scanl
+                   , map, apply, map2, scanl
                    , take, drop, splitAt
                    , sampleOn
                    , filter, takeWhile, dropWhile, splitWith
                    ) where
 
-{-| This library is for creating and manipulating infinite streams 
+{-| This library is for creating and manipulating infinite streams
 
 # Create
 @docs cons, cons', iterate, unfold, repeat, cycle
@@ -19,15 +19,16 @@ module Lazy.Stream ( Stream
 @docs foldr, filter, takeWhile, dropWhile, splitWith
 
 # Transform
-@docs map, apply, zip, zipWith, scanl
+@docs map, apply, map2, scanl
 
 -}
 
 import Lazy (..)
-import Lazy as Lazy
+import Lazy
 import Signal ((<~), foldp, Signal)
+import List (..)
 
-data Stream a = S (Lazy (a, Stream a))
+type Stream a = S (Lazy (a, Stream a))
 
 
 ---------
@@ -46,7 +47,7 @@ head = fst << force
 
 ```haskell
 -- 1, 1, 1, 1, ...
-stillAllOnes = tail 
+stillAllOnes = tail
 ```
 -}
 tail : Stream a -> Stream a
@@ -101,7 +102,7 @@ fibs = unfold (\(m,n) -> (m, (n, m + n))) (0, 1)
 ```
 -}
 unfold : (b -> (a, b)) -> b -> Stream a
-unfold f s = let loop s = 
+unfold f s = let loop s =
                    cons' <| \() ->
                    let (hd, s') = f s
                    in (hd, loop s')
@@ -127,7 +128,7 @@ on an empty list:
 cycle "Alice" ["Bob"]
 ```
 -}
-cycle : a -> [a] -> Stream a
+cycle : a -> List a -> Stream a
 cycle x xs = let cycle' ys = case ys of
                    [] -> go
                    (y :: ys) -> cons y <| \() ->
@@ -148,37 +149,27 @@ map f xs = cons' <| \() ->
   (f (head xs), map f (tail xs))
 
 {-| Pairwise apply a stream of functions to a stream of arguments.
-When paired with `map`, this can be used to emulate `zipWith` over *n* streams.
+When paired with `map`, this can be used to emulate `map2` over *n* streams.
 
 ```haskell
-zipWith3 : (a -> b -> c -> d) -> Stream a -> Stream b -> Stream c -> Stream d
-zipWith3 f xs ys zs = f `S.map` xs `S.apply` ys `S.apply` zs
+map3 : (a -> b -> c -> d) -> Stream a -> Stream b -> Stream c -> Stream d
+map3 f xs ys zs = f `S.map` xs `S.apply` ys `S.apply` zs
 ```
 -}
 apply : Stream (a -> b) -> Stream a -> Stream b
-apply fs xs = zipWith (<|) fs xs
-
-{-| Combine two streams, putting them into tuples pairwise:
-
-```haskell
--- (1,2), (1,4), (1,8), (1,16), ...
-pairs = zip ones powersOf2
-```
--}
-zip : Stream a -> Stream b -> Stream (a, b)
-zip = zipWith (\x y -> (x,y))
+apply fs xs = map2 (<|) fs xs
 
 {-| Combine two streams, applying the given function pairwise:
 
 ```haskell
 -- 3, 5, 9, 17, ...
-zipWith (+) ones powersOf2
+map2 (+) ones powersOf2
 ```
 -}
-zipWith : (a -> b -> c) -> Stream a -> Stream b -> Stream c
-zipWith f xs ys = cons' <| \() ->
+map2 : (a -> b -> c) -> Stream a -> Stream b -> Stream c
+map2 f xs ys = cons' <| \() ->
   (f (head xs) (head ys),
-   zipWith f (tail xs) (tail ys))
+   map2 f (tail xs) (tail ys))
 
 {-| Scan over a stream from the left, building an infinite stream of reductions.
 
@@ -198,7 +189,7 @@ scanl f init xs = cons' <| \() ->
 take 5 powersOf2 == [2,4,8,16,32]
 ```
 -}
-take : Int -> Stream a -> [a]
+take : Int -> Stream a -> List a
 take n xs = fst <| splitAt n xs
 
 {-| Drop the first *n* elements of a stream
@@ -217,7 +208,7 @@ drop n xs = snd <| splitAt n xs
 splitAt n xs == (take n xs, drop n xs)
 ```
 -}
-splitAt : Int -> Stream a -> ([a], Stream a)
+splitAt : Int -> Stream a -> (List a, Stream a)
 splitAt n xs = case n of
   0 -> ([], xs)
   n -> let (heads, end) = splitAt (n - 1) (tail xs)
@@ -268,7 +259,7 @@ takeWhile isEven powersOf2
 ```
 
 -}
-takeWhile : (a -> Bool) -> Stream a -> [a]
+takeWhile : (a -> Bool) -> Stream a -> List a
 takeWhile p xs = fst <| splitWith p xs
 
 {-| Drop values from the stream as long as the predicate holds.
@@ -300,14 +291,14 @@ splitWith (\n -> n < 10) powersOf2 == ([2,4,8], ...)
 ```
 This will infinite loop if all elements satisfy the predicate!
 -}
-splitWith : (a -> Bool) -> Stream a -> ([a], Stream a)
+splitWith : (a -> Bool) -> Stream a -> (List a, Stream a)
 splitWith p xs = let (hd, tl) = force xs in
   case p hd of
     True  -> let (taken, dropped) = splitWith p tl
              in (hd :: taken, dropped)
     False -> ([], xs)
 
-{-| Lazily fold over a Stream. 
+{-| Lazily fold over a Stream.
 
     Forcing the value of this function only terminates if the provided
     folding function eventually ignores its second argument.
@@ -318,4 +309,3 @@ foldr f xs = let loop xs = lazy <| \() ->
                    let (hd, tl) = force xs in
                    Lazy.force <| f hd (loop tl)
              in loop xs
-

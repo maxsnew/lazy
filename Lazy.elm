@@ -15,7 +15,7 @@ module Lazy ( force, Lazy, lazy, map, apply, andThen
 
 import Native.Lazy
 
-data Lazy a = L { force : () -> a }
+type Lazy a = L { force : () -> a }
 
 {-| Delay execution of a value until it is used -}
 lazy : (() -> a) -> Lazy a

@@ -1,16 +1,18 @@
 module Lazy.List.Definition ( List
+                            , Bod(..)
                             , force
                             , nil, cons, cons'
+                            , list
                             )
        where
 
 import Lazy (..)
-import Lazy as Lazy
+import Lazy
 
-data List a = L (Lazy (Bod a))
+type List a = L (Lazy (Bod a))
 
 -- Equivalent to Maybe (a, List a)
-data Bod a = Nil
+type Bod a = Nil
            | Cons a (List a)
 
 force : List a -> Bod a
