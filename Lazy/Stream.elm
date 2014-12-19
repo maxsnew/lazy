@@ -7,7 +7,13 @@ module Lazy.Stream ( Stream
                    , filter, takeWhile, dropWhile, splitWith
                    ) where
 
-{-| This library is for creating and manipulating infinite streams
+{-| This library is for creating and manipulating infinite streams.
+
+The cells of the Stream are memoized using the `Lazy` type, meaning
+tails of the stream are memoized, and thus certain uses can take a lot
+of space. If you only need the values of your stream once, you may be
+better off with a Stream implementation that is not memoized (i.e.,
+uses plain thunks `() -> Stream a` as tails of the Stream).
 
 # Create
 @docs cons, cons', iterate, unfold, repeat, cycle
@@ -30,8 +36,7 @@ import List (..)
 
 type Stream a = S (Lazy (a, Stream a))
 
-
----------
+-----------
 -----------
 
 {-| Get the first element of a stream, called the `head`.

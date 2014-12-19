@@ -3,6 +3,10 @@ module Lazy ( force, Lazy, lazy, map, apply, andThen
 
 {-| Library for Lazy evaluation.
 
+A `Lazy a` is a delayed evaluation of an `a`, i.e., it's a thunk
+`() -> a` with the guarantee that `force` only runs the thunk the
+first time it's called, and thereafter the result is remembered.
+
 # Delay
 @docs lazy
 
