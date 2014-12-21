@@ -20,8 +20,7 @@ module Lazy
 import Native.Lazy
 
 
-type Lazy a =
-  L { force : () -> a }
+type Lazy a = Lazy (() -> a)
 
 {-| Delay the evaluation of a value until later. For example, maybe we will
 need to generate a very long list and find its sum, but we do not want to do
@@ -35,7 +34,7 @@ Now we only pay for `lazySum` if we actually need it.
 -}
 lazy : (() -> a) -> Lazy a
 lazy thunk =
-  L { force = (Native.Lazy.lazy thunk) }
+  Lazy (Native.Lazy.memoize thunk)
 
 
 {-| Force the evaluation of a lazy value. This means we only pay for the
@@ -55,7 +54,8 @@ the first one, but all the rest are very cheap, basically just looking up a
 value in memory.
 -}
 force : Lazy a -> a
-force (L r) = r.force ()
+force (Lazy thunk) =
+  thunk ()
 
 
 {-| Lazily apply a function to a lazy value.
