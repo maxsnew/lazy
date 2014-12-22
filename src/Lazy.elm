@@ -117,7 +117,25 @@ apply f x =
 
 
 {-| Lazily chain together lazy computations, for when you have a series of
-steps that all need to be performed lazily.
+steps that all need to be performed lazily. This can be nice when you need to
+pattern match on a value, for example, when appending lazy lists:
+
+    type List a = Empty | Node a (Lazy (List a))
+
+    cons : a -> Lazy (List a) -> Lazy (List a)
+    cons first rest =
+        Lazy.map (Node first) rest
+
+    append : Lazy (List a) -> Lazy (List a) -> Lazy (List a)
+    append lazyList1 lazyList2 =
+        lazyList1
+          `andThen` \list1 ->
+              case list1 of
+                Nil ->
+                  lazyList2
+
+                Cons first rest ->
+                  cons first (append rest list2))
 -}
 andThen : Lazy a -> (a -> Lazy b) -> Lazy b
 andThen a callback =
