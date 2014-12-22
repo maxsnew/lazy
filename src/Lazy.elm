@@ -136,6 +136,10 @@ pattern match on a value, for example, when appending lazy lists:
 
                 Cons first rest ->
                   cons first (append rest list2))
+
+By using `andThen` we ensure that neither `lazyList1` or `lazyList2` are forced
+before they are needed. So as written, the `append` function delays the pattern
+matching until later.
 -}
 andThen : Lazy a -> (a -> Lazy b) -> Lazy b
 andThen a callback =
