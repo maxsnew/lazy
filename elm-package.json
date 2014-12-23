@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "Basic primitives for working with laziness",
-    "repository": "http://github.com/maxsnew/Lazy.git",
+    "repository": "http://github.com/maxsnew/lazy.git",
     "license": "BSD3",
     "source-directories": [
         "src"
