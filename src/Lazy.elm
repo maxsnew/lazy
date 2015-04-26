@@ -17,7 +17,7 @@ module Lazy
 @docs apply, andThen
 -}
 
-import Native.Lazy exposing (..)
+import Native.Lazy
 
 
 type Lazy a = Lazy (() -> a)
