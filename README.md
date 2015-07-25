@@ -61,8 +61,9 @@ One of the most delightful uses of laziness is to create infinite streams of
 values. Hopefully we can get a set of interesting challenges together so
 you can run through them and get comfortable.
 
-For a deeper dive, the book *Purely Functional Data Structures* by Chris
-Okasaki has some interesting examples of data structures that get great
+For a deeper dive, Chris Okasaki's book *Purely Functional Data Structures*
+and [thesis](http://www.cs.cmu.edu/~rwh/theses/okasaki.pdf)
+have interesting examples of data structures that get great
 benefits from laziness, and hopefully it will provide some inspiration for the
 problems you face in practice.
 
