@@ -131,10 +131,10 @@ pattern match on a value, for example, when appending lazy lists:
         lazyList1
           `andThen` \list1 ->
               case list1 of
-                Nil ->
+                Empty ->
                   lazyList2
 
-                Cons first rest ->
+                Node first rest ->
                   cons first (append rest list2))
 
 By using `andThen` we ensure that neither `lazyList1` or `lazyList2` are forced
