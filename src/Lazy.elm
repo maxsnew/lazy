@@ -8,7 +8,7 @@ module Lazy
 {-| This library lets you delay a computation until later.
 
 # Basics
-@docs lazy, force
+@docs Lazy, lazy, force
 
 # Mapping
 @docs map, map2, map3, map4, map5
@@ -20,6 +20,7 @@ module Lazy
 import Native.Lazy
 
 
+{-| A wrapper around a value that will be lazily evaluated. -}
 type Lazy a = Lazy (() -> a)
 
 {-| Delay the evaluation of a value until later. For example, maybe we will
@@ -88,16 +89,19 @@ map2 f a b =
   lazy (\() -> f (force a) (force b))
 
 
+{-|-}
 map3 : (a -> b -> c -> result) -> Lazy a -> Lazy b -> Lazy c -> Lazy result
 map3 f a b c =
   lazy (\() -> f (force a) (force b) (force c))
 
 
+{-|-}
 map4 : (a -> b -> c -> d -> result) -> Lazy a -> Lazy b -> Lazy c -> Lazy d -> Lazy result
 map4 f a b c d =
   lazy (\() -> f (force a) (force b) (force c) (force d))
 
 
+{-|-}
 map5 : (a -> b -> c -> d -> e -> result) -> Lazy a -> Lazy b -> Lazy c -> Lazy d -> Lazy e -> Lazy result
 map5 f a b c d e =
   lazy (\() -> f (force a) (force b) (force c) (force d) (force e))
