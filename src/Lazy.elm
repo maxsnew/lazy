@@ -1,9 +1,8 @@
-module Lazy
+module Lazy exposing
     ( Lazy, force, lazy
     , map, map2, map3, map4, map5
     , apply, andThen
     )
-    where
 
 {-| This library lets you delay a computation until later.
 
