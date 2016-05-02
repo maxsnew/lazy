@@ -1,5 +1,6 @@
 module Lazy exposing
-    ( Lazy, force, lazy
+    ( Lazy
+    , force, lazy
     , map, map2, map3, map4, map5
     , apply, andThen
     )
@@ -19,8 +20,14 @@ module Lazy exposing
 import Native.Lazy
 
 
+
+-- PRIMITIVES
+
+
 {-| A wrapper around a value that will be lazily evaluated. -}
-type Lazy a = Lazy (() -> a)
+type Lazy a =
+  Lazy (() -> a)
+
 
 {-| Delay the evaluation of a value until later. For example, maybe we will
 need to generate a very long list and find its sum, but we do not want to do
@@ -56,6 +63,10 @@ value in memory.
 force : Lazy a -> a
 force (Lazy thunk) =
   thunk ()
+
+
+
+-- COMPOSING LAZINESS
 
 
 {-| Lazily apply a function to a lazy value.
