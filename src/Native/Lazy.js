@@ -1,4 +1,4 @@
-var _maxsnew$lazy$Native_Lazy = function() {
+var _elm_lang$lazy$Native_Lazy = function() {
 
 function memoize(thunk)
 {
