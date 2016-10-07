@@ -138,23 +138,27 @@ pattern match on a value, for example, when appending lazy lists:
 
     cons : a -> Lazy (List a) -> Lazy (List a)
     cons first rest =
-        Lazy.map (Node first) rest
+      Lazy.map (Node first) rest
 
     append : Lazy (List a) -> Lazy (List a) -> Lazy (List a)
     append lazyList1 lazyList2 =
-        lazyList1
-          `andThen` \list1 ->
-              case list1 of
-                Empty ->
-                  lazyList2
+      let
+        appendHelp list1 =
+          case list1 of
+            Empty ->
+              lazyList2
 
-                Node first rest ->
-                  cons first (append rest list2))
+            Node first rest ->
+              cons first (append rest list2))
+      in
+        lazyList1
+          |> Lazy.andThen appendHelp
+
 
 By using `andThen` we ensure that neither `lazyList1` or `lazyList2` are forced
 before they are needed. So as written, the `append` function delays the pattern
 matching until later.
 -}
-andThen : Lazy a -> (a -> Lazy b) -> Lazy b
-andThen a callback =
+andThen : (a -> Lazy b) -> Lazy a -> Lazy b
+andThen callback a =
   lazy (\() -> force (callback (force a)))
