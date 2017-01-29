@@ -25,8 +25,9 @@ import Native.Lazy
 
 
 {-| A wrapper around a value that will be lazily evaluated. -}
-type Lazy a =
-  Lazy (() -> a)
+type Lazy a
+  = Evaluated a
+  | Unevaluated (() -> a)
 
 
 {-| Delay the evaluation of a value until later. For example, maybe we will
@@ -41,7 +42,7 @@ Now we only pay for `lazySum` if we actually need it.
 -}
 lazy : (() -> a) -> Lazy a
 lazy thunk =
-  Lazy (Native.Lazy.memoize thunk)
+  Unevaluated thunk
 
 
 {-| Force the evaluation of a lazy value. This means we only pay for the
@@ -61,8 +62,10 @@ the first one, but all the rest are very cheap, basically just looking up a
 value in memory.
 -}
 force : Lazy a -> a
-force (Lazy thunk) =
-  thunk ()
+force lzy =
+  case lzy of
+    Evaluated a -> a
+    Unevaluated _ -> Native.Lazy.memoize lzy
 
 
 
