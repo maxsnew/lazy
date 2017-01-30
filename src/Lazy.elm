@@ -1,6 +1,6 @@
 module Lazy exposing
     ( Lazy
-    , force, lazy
+    , force, lazy, lazyFromValue
     , map, map2, map3, map4, map5
     , apply, andThen
     )
@@ -8,7 +8,7 @@ module Lazy exposing
 {-| This library lets you delay a computation until later.
 
 # Basics
-@docs Lazy, lazy, force
+@docs Lazy, lazy, lazyFromValue, force
 
 # Mapping
 @docs map, map2, map3, map4, map5
@@ -43,6 +43,26 @@ Now we only pay for `lazySum` if we actually need it.
 lazy : (() -> a) -> Lazy a
 lazy thunk =
   Unevaluated thunk
+
+
+{-| `lazyFromValue' Sets the created Lazy a to an already evaluated value.
+For example, maybe we want to set the tail of a lazy list to an Empty node so
+there is no need to defer the calculation as it is a simple constant:
+
+    type LazyListNode a = Empty | Cons a (LazyList a)
+    type alias LasyList a = Lazy (LazyListNode a)
+
+    shortLazyList : LazyList Int
+    shortLazyList =
+      lazy <| Cons 1 <| lazyFromValue Empty
+
+Now the overall shortLazyList is lazy in case the head of the list is complex to
+calculate (unlike here) but the tail of the shortLazyList is immediately available to
+force without calling an evaluation functtion.
+-}
+lazyFromValue : a -> Lazy a
+lazyFromValue v =
+  Evaluated v
 
 
 {-| Force the evaluation of a lazy value. This means we only pay for the
