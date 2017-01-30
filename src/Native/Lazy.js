@@ -1,25 +1,18 @@
-Elm.Native.Lazy = {};
-Elm.Native.Lazy.make = function(localRuntime) {
+var _elm_lang$lazy$Native_Lazy = function() {
 
-    localRuntime.Native = localRuntime.Native || {};
-    localRuntime.Native.Lazy = localRuntime.Native.Lazy || {};
-    if (localRuntime.Native.Lazy.values) {
-        return localRuntime.Native.Lazy.values;
-    }
+// mutates `lzy` Unevaluated thunk into Evaluated value, returning value.
+function memoize(lzy) {
+    if (lzy.ctor === 'Evaluating')
+        throw Error("Lazy.memoize:  recursive evaluation error!!!");
+    lzy.ctor = 'Evaluating';
+    var v = lzy._0(lzy); // dummy placeholder arg
+    lzy.ctor = 'Evaluated';
+    lzy._0 = v;
+    return v;
+}
 
-    function memoize(thunk) {
-        var value;
-        var isForced = false;
-        return function(tuple0) {
-            if (!isForced) {
-                value = thunk(tuple0);
-                isForced = true;
-            }
-            return value;
-        };
-    }
-
-    return localRuntime.Native.Lazy.values = {
-        memoize: memoize
-    };
+return {
+    memoize: memoize
 };
+
+}();
