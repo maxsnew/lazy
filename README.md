@@ -33,35 +33,11 @@ to the collateral complications.
 
 * * *
 
-What follows is the old content of this README because I think it is still
-interesting information.
+What follows is some of content from the old README.
 
 * * *
 
 <br>
-
-# Motivating Example
-
-Maybe you have 100 different graphs you want to show at various times, each
-requiring a decent amount of computation. Here are a couple ways to handle
-this:
-
- 1. Compute everything up front. This will introduce a delay on startup, but
-    it should be quite fast after that. Depending on how much memory is needed
-    to store each graph, you may be paying a lot there as well.
-
- 2. Compute each graph whenever you need it. This minimizes startup cost and
-    uses a minimal amount of memory, but when you are flipping between two
-    graphs you may be running the same computations again and again.
-
- 3. Compute each graph whenever you need it and save the result. Again, this
-    makes startup as fast as possible fast, but since we save the result,
-    flipping between graphs becomes much quicker. As we look at more graphs
-    we will need to use more and more memory though.
-
-All of these strategies are useful in general, but the details of your
-particular problem will mean that one of these ways provides the best
-experience. This library makes it super easy to use strategy #3.
 
 
 # Pitfalls
