@@ -1,7 +1,44 @@
-# Laziness in Elm
+# DEPRECATED
 
-This package provides the basic primitives for working with laziness in Elm.
+It turned out that many folks were unclear on the difference between laziness
+and delayed computation:
 
+  - **Delayed Computation** is when you have a value like `answer : () -> Int`
+  that you can evaluate later. You only do all the computation when you say
+  `answer ()` at some later time. If you call `answer ()` four times, you do
+  the computation four times.
+
+  - **Laziness** is an optimization on top of delayed computation. It is just
+  like having `answer : () -> Int` but when this function is evaluated for the
+  first time, the results are saved. So if you call `answer ()` four times, you
+  do the computation *one* time.
+
+In all the cases in Elm that I have heard of that use this library, folks only
+really needed *delayed computation* and ended up with simpler code when they
+went that way.
+
+So in the end, there are two major reasons to stop supporting laziness:
+
+  1. It is overkill for all the scenarios I have seen in Elm.
+  2. It allows the creation of cyclic data, significantly complicating GC.
+
+With laziness you can create a list like `ones = 1 :: ones` that refers to
+itself. Without laziness, there is no way to create cyclic data in Elm. That
+means we can use a naive reference counting approach to collect garbage if we
+wanted. So although people have dreamed up data structures that use laziness
+in interesting ways, I do not feel these cases are compelling enough to commit
+to the collateral complications.
+
+<br>
+
+* * *
+
+What follows is the old content of this README because I think it is still
+interesting information.
+
+* * *
+
+<br>
 
 # Motivating Example
 
